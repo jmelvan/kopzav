@@ -92,12 +92,19 @@ void loop() {
 // funkcija za parsiranje podataka kartice (izvlacimo UID)
 void procitaj() {
   uid = "";
+  // ucitavamo jedan po jedan byte od UID-a kartice
   for (byte i = 0; i < mfrc522.uid.size; i++) {
+    // posto se radi o HEX brojevima, ako je broj manji od 10(HEX), dodaj prefix 0 u varijablu "uid" (npr. ako je broj 7 dodaj 0 da izgleda kao 07)
     uid.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? "0" : ""));
+    // dodaj HEX broj u varijablu "uid"
     uid.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
+  // sva slova pretvori u velika slova (ako ima malih slova neka budu velika)
   uid.toUpperCase();
 
+  // provjera je li se drzi botun za dodavanje nove kartice
+  // ako se ne drzi, provjeri karticu je li dodana i ukoliko je dodana otkljucaj vrata
+  // ako se drzi botun za dodavanje nove kartice, dodaj skeniranu karticu
   if(!addCardFlag) {
     if(kartica_postoji(uid)) otvori();
   } else
@@ -106,14 +113,14 @@ void procitaj() {
 
 // funkcija za dodavanje nove kartice
 void dodaj_karticu() {
-  // ako kartica vec postoji, posalji zvucni signal da je vec unesena
+  // ako kartica vec postoji, posalji zvucni signal da je vec unesena i prekini daljnje dodavanje
   if(kartica_postoji(uid)){
     tone(buzz, 700, 25);
     delay(150);
     tone(buzz, 700, 25);
     return;
   }
-  // dodaj UID kartice u niz
+  // dodaj UID kartice u niz (array) "kartice" 
   kartice[broj_kartica] = uid;
   // povecaj broj kartica u nizu
   broj_kartica++;
